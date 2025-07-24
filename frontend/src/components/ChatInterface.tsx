@@ -71,7 +71,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ conversationId }) => {
         message: inputMessage,
         conversationId: currentConversationId,
         topK: 5,
-        similarityThreshold: 0.5
+        similarityThreshold: 0.6
       };
 
       const response: ChatResponse = await ApiService.chat(chatRequest);
