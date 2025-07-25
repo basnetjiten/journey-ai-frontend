@@ -21,6 +21,9 @@ import {
   SmartToy as BotIcon,
   Person as PersonIcon
 } from '@mui/icons-material';
+import ReactMarkdown from 'react-markdown';
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
+import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import ApiService from '../services/api';
 import { ChatResponse, ChatRequest } from '../types/api';
 
@@ -172,6 +175,107 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ conversationId }) => {
     );
   };
 
+  const MarkdownComponents = {
+    code({ node, inline, className, children, ...props }: any) {
+      const match = /language-(\w+)/.exec(className || '');
+      return !inline && match ? (
+        <SyntaxHighlighter
+          style={tomorrow}
+          language={match[1]}
+          PreTag="div"
+          {...props}
+        >
+          {String(children).replace(/\n$/, '')}
+        </SyntaxHighlighter>
+      ) : (
+        <code className={className} {...props} style={{ 
+          backgroundColor: '#f5f5f5', 
+          padding: '2px 4px', 
+          borderRadius: '3px',
+          fontFamily: 'monospace'
+        }}>
+          {children}
+        </code>
+      );
+    },
+    p: ({ children }: any) => (
+      <Typography variant="body1" component="p" sx={{ mb: 1, lineHeight: 1.6 }}>
+        {children}
+      </Typography>
+    ),
+    h1: ({ children }: any) => (
+      <Typography variant="h4" component="h1" sx={{ mb: 2, mt: 2, fontWeight: 'bold' }}>
+        {children}
+      </Typography>
+    ),
+    h2: ({ children }: any) => (
+      <Typography variant="h5" component="h2" sx={{ mb: 1.5, mt: 1.5, fontWeight: 'bold' }}>
+        {children}
+      </Typography>
+    ),
+    h3: ({ children }: any) => (
+      <Typography variant="h6" component="h3" sx={{ mb: 1, mt: 1, fontWeight: 'bold' }}>
+        {children}
+      </Typography>
+    ),
+    ul: ({ children }: any) => (
+      <Box component="ul" sx={{ mb: 1, pl: 2 }}>
+        {children}
+      </Box>
+    ),
+    ol: ({ children }: any) => (
+      <Box component="ol" sx={{ mb: 1, pl: 2 }}>
+        {children}
+      </Box>
+    ),
+    li: ({ children }: any) => (
+      <Typography component="li" variant="body1" sx={{ mb: 0.5 }}>
+        {children}
+      </Typography>
+    ),
+    blockquote: ({ children }: any) => (
+      <Box
+        component="blockquote"
+        sx={{
+          borderLeft: '4px solid #ddd',
+          pl: 2,
+          ml: 0,
+          mb: 1,
+          fontStyle: 'italic',
+          color: 'text.secondary'
+        }}
+      >
+        {children}
+      </Box>
+    ),
+    table: ({ children }: any) => (
+      <Box sx={{ overflowX: 'auto', mb: 2 }}>
+        <Box component="table" sx={{ minWidth: '100%', borderCollapse: 'collapse' }}>
+          {children}
+        </Box>
+      </Box>
+    ),
+    th: ({ children }: any) => (
+      <Box
+        component="th"
+        sx={{
+          border: '1px solid #ddd',
+          p: 1,
+          backgroundColor: '#f5f5f5',
+          fontWeight: 'bold',
+          textAlign: 'left'
+        }}
+      >
+        {children}
+      </Box>
+    ),
+    td: ({ children }: any) => (
+      <Box component="td" sx={{ border: '1px solid #ddd', p: 1 }}>
+        {children}
+      </Box>
+    ),
+  };
+
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
@@ -238,9 +342,11 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ conversationId }) => {
                       </Typography>
                     </Box>
                     
-                    <Typography variant="body1" sx={{ whiteSpace: 'pre-wrap' }}>
-                      {message.content}
-                    </Typography>
+                    <Box sx={{ '& > *:last-child': { mb: 0 } }}>
+                      <ReactMarkdown components={MarkdownComponents}>
+                        {message.content}
+                      </ReactMarkdown>
+                    </Box>
 
                     {message.sources && renderSources(message.sources)}
                     {message.metadata && renderMetadata(message.metadata)}
@@ -308,4 +414,4 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ conversationId }) => {
   );
 };
 
-export default ChatInterface; 
+export default ChatInterface;
