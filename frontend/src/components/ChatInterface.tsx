@@ -197,83 +197,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ conversationId }) => {
           {children}
         </code>
       );
-    },
-    p: ({ children }: any) => (
-      <Typography variant="body1" component="p" sx={{ mb: 1, lineHeight: 1.6 }}>
-        {children}
-      </Typography>
-    ),
-    h1: ({ children }: any) => (
-      <Typography variant="h4" component="h1" sx={{ mb: 2, mt: 2, fontWeight: 'bold' }}>
-        {children}
-      </Typography>
-    ),
-    h2: ({ children }: any) => (
-      <Typography variant="h5" component="h2" sx={{ mb: 1.5, mt: 1.5, fontWeight: 'bold' }}>
-        {children}
-      </Typography>
-    ),
-    h3: ({ children }: any) => (
-      <Typography variant="h6" component="h3" sx={{ mb: 1, mt: 1, fontWeight: 'bold' }}>
-        {children}
-      </Typography>
-    ),
-    ul: ({ children }: any) => (
-      <Box component="ul" sx={{ mb: 1, pl: 2 }}>
-        {children}
-      </Box>
-    ),
-    ol: ({ children }: any) => (
-      <Box component="ol" sx={{ mb: 1, pl: 2 }}>
-        {children}
-      </Box>
-    ),
-    li: ({ children }: any) => (
-      <Typography component="li" variant="body1" sx={{ mb: 0.5 }}>
-        {children}
-      </Typography>
-    ),
-    blockquote: ({ children }: any) => (
-      <Box
-        component="blockquote"
-        sx={{
-          borderLeft: '4px solid #ddd',
-          pl: 2,
-          ml: 0,
-          mb: 1,
-          fontStyle: 'italic',
-          color: 'text.secondary'
-        }}
-      >
-        {children}
-      </Box>
-    ),
-    table: ({ children }: any) => (
-      <Box sx={{ overflowX: 'auto', mb: 2 }}>
-        <Box component="table" sx={{ minWidth: '100%', borderCollapse: 'collapse' }}>
-          {children}
-        </Box>
-      </Box>
-    ),
-    th: ({ children }: any) => (
-      <Box
-        component="th"
-        sx={{
-          border: '1px solid #ddd',
-          p: 1,
-          backgroundColor: '#f5f5f5',
-          fontWeight: 'bold',
-          textAlign: 'left'
-        }}
-      >
-        {children}
-      </Box>
-    ),
-    td: ({ children }: any) => (
-      <Box component="td" sx={{ border: '1px solid #ddd', p: 1 }}>
-        {children}
-      </Box>
-    ),
+    }
   };
 
   return (
@@ -343,9 +267,15 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ conversationId }) => {
                     </Box>
                     
                     <Box sx={{ '& > *:last-child': { mb: 0 } }}>
-                      <ReactMarkdown components={MarkdownComponents}>
-                        {message.content}
-                      </ReactMarkdown>
+                      {message.role === 'assistant' ? (
+                        <ReactMarkdown components={MarkdownComponents}>
+                          {String(message.content)}
+                        </ReactMarkdown>
+                      ) : (
+                        <Typography variant="body1" component="div" sx={{ lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+                          {message.content}
+                        </Typography>
+                      )}
                     </Box>
 
                     {message.sources && renderSources(message.sources)}
