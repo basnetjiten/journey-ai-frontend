@@ -11,19 +11,17 @@ import {
   Chip,
   Alert,
   CircularProgress,
-  Button,
   Snackbar
 } from '@mui/material';
 import {
   SmartToy as BotIcon,
-  Upload as UploadIcon,
-  Search as SearchIcon,
-  Dashboard as DashboardIcon,
-  PlayArrow as PlayIcon
+  // Upload as UploadIcon,
+  // Search as SearchIcon,
+  // Dashboard as DashboardIcon,
 } from '@mui/icons-material';
 import ChatInterface from './ChatInterface';
-import EmbeddingInterface from './EmbeddingInterface';
-import SearchInterface from './SearchInterface';
+// import EmbeddingInterface from './EmbeddingInterface';
+// import SearchInterface from './SearchInterface';
 import ApiService from '../services/api';
 import { HealthResponse } from '../types/api';
 
@@ -58,12 +56,11 @@ const Dashboard: React.FC = () => {
   const [healthStatus, setHealthStatus] = useState<HealthResponse | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [isLoadingSampleData, setIsLoadingSampleData] = useState(false);
-  const [snackbar, setSnackbar] = useState<{
-    open: boolean;
-    message: string;
-    severity: 'success' | 'error' | 'info';
-  }>({ open: false, message: '', severity: 'info' });
+  const [snackbar, setSnackbar] = useState({
+    open: false,
+    message: '',
+    severity: 'info' as 'success' | 'error' | 'info',
+  });
 
   useEffect(() => {
     checkHealth();
@@ -83,38 +80,6 @@ const Dashboard: React.FC = () => {
 
   const handleTabChange = (event: React.SyntheticEvent, newValue: number) => {
     setTabValue(newValue);
-  };
-
-  const handleQuickLoadSampleData = async () => {
-    setIsLoadingSampleData(true);
-    try {
-      const response = await fetch('https://journey-ai-webservice.onrender.com/api/v1/quick-load-sample-data', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      });
-      
-      const result = await response.json();
-      
-      if (result.success) {
-        setSnackbar({
-          open: true,
-          message: `✅ Successfully loaded ${result.summary.successful} balloon vendor records!`,
-          severity: 'success'
-        });
-      } else {
-        throw new Error(result.error || 'Failed to load sample data');
-      }
-    } catch (error) {
-      setSnackbar({
-        open: true,
-        message: `❌ Error: ${error instanceof Error ? error.message : 'Failed to load sample data'}`,
-        severity: 'error'
-      });
-    } finally {
-      setIsLoadingSampleData(false);
-    }
   };
 
   const handleCloseSnackbar = () => {
@@ -188,117 +153,33 @@ const Dashboard: React.FC = () => {
               aria-label="main navigation tabs"
               sx={{ px: 2 }}
             >
-              <Tab
-                icon={<DashboardIcon />}
-                label="Dashboard"
-                iconPosition="start"
-              />
-              <Tab
-                icon={<UploadIcon />}
-                label="Upload Documents"
-                iconPosition="start"
-              />
-              <Tab
-                icon={<SearchIcon />}
-                label="Search"
-                iconPosition="start"
-              />
-              <Tab
-                icon={<BotIcon />}
-                label="AI Chat"
-                iconPosition="start"
-              />
+              {/* Uncomment below if you want to show other tabs */}
+              {/*
+              <Tab icon={<DashboardIcon />} label="Dashboard" iconPosition="start" />
+              <Tab icon={<UploadIcon />} label="Upload" iconPosition="start" />
+              <Tab icon={<SearchIcon />} label="Search" iconPosition="start" />
+              */}
+              <Tab icon={<BotIcon />} label="AI Chat" iconPosition="start" />
             </Tabs>
           </Box>
 
-          {/* Tab Panels */}
+          {/* Chat Tab Only */}
           <Box sx={{ flex: 1, overflow: 'hidden' }}>
             <TabPanel value={tabValue} index={0}>
               <Box sx={{ p: 3, height: '100%', overflow: 'auto' }}>
-                <Typography variant="h4" gutterBottom>
-                  Welcome to Journey-AI
+                <Typography variant="h5" gutterBottom>
+                  Ask anything about balloon vendors 🎈
                 </Typography>
-                
-                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 3, mt: 3 }}>
-                  <Paper sx={{ p: 3, textAlign: 'center' }}>
-                    <UploadIcon sx={{ fontSize: 48, color: 'primary.main', mb: 2 }} />
-                    <Typography variant="h6" gutterBottom>
-                      Upload Documents
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Process JSON documents and create embeddings for semantic search
-                    </Typography>
-                  </Paper>
-
-                  <Paper sx={{ p: 3, textAlign: 'center' }}>
-                    <SearchIcon sx={{ fontSize: 48, color: 'primary.main', mb: 2 }} />
-                    <Typography variant="h6" gutterBottom>
-                      Semantic Search
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Search through your documents using natural language queries
-                    </Typography>
-                  </Paper>
-
-                  <Paper sx={{ p: 3, textAlign: 'center' }}>
-                    <BotIcon sx={{ fontSize: 48, color: 'primary.main', mb: 2 }} />
-                    <Typography variant="h6" gutterBottom>
-                      Chatbot
-                    </Typography>
-                    <Typography variant="body2" color="text.secondary">
-                      Ask questions and get intelligent responses based on your data
-                    </Typography>
-                  </Paper>
-                </Box>
-
-                {/* Quick Load Sample Data Section */}
-                <Paper sx={{ p: 3, mt: 3 }}>
-                  <Typography variant="h6" gutterBottom>
-                    🎈 Quick Load Sample Data
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                    Generate and upload 20 random balloon vendor records with comprehensive business data for testing and demonstration.
-                  </Typography>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    startIcon={isLoadingSampleData ? <CircularProgress size={20} /> : <PlayIcon />}
-                    onClick={handleQuickLoadSampleData}
-                    disabled={isLoadingSampleData}
-                    sx={{ mr: 2 }}
-                  >
-                    {isLoadingSampleData ? 'Loading Sample Data...' : 'Quick Load Sample Data'}
-                  </Button>
-                  <Typography variant="caption" color="text.secondary">
-                    This will create 20 diverse balloon vendor profiles with business metrics, financial data, and operational details.
-                  </Typography>
-                </Paper>
-
-                {healthStatus && (
-                  <Paper sx={{ p: 3, mt: 3 }}>
-                    <Typography variant="h6" gutterBottom>
-                      System Status
-                    </Typography>
-                    <Box display="flex" gap={2} flexWrap="wrap">
-                      <Chip label={`Status: ${healthStatus.status}`} color="success" />
-                      <Chip label={`Uptime: ${Math.floor(healthStatus.uptime / 60)} minutes`} />
-                      <Chip label={`Version: ${healthStatus.version}`} />
-                    </Box>
-                  </Paper>
-                )}
+                <Typography variant="body1" color="text.secondary" gutterBottom>
+                  Try asking things like:
+                  <ul>
+                    <li>“What is the daily visitory of vendor?”</li>
+                    <li>“Who has the highest customer rating?”</li>
+                    <li>“What is the average pricing for balloon arches?”</li>
+                  </ul>
+                </Typography>
+                <ChatInterface />
               </Box>
-            </TabPanel>
-
-            <TabPanel value={tabValue} index={1}>
-              <EmbeddingInterface />
-            </TabPanel>
-
-            <TabPanel value={tabValue} index={2}>
-              <SearchInterface />
-            </TabPanel>
-
-            <TabPanel value={tabValue} index={3}>
-              <ChatInterface />
             </TabPanel>
           </Box>
         </Paper>
@@ -323,4 +204,4 @@ const Dashboard: React.FC = () => {
   );
 };
 
-export default Dashboard; 
+export default Dashboard;

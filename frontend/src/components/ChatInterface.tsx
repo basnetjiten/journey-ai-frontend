@@ -78,7 +78,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ conversationId }) => {
       };
 
       const response: ChatResponse = await ApiService.chat(chatRequest);
-      
+
       const assistantMessage: Message = {
         role: 'assistant',
         content: response.response,
@@ -153,16 +153,8 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ conversationId }) => {
 
     return (
       <Box sx={{ mt: 1, display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-        <Chip
-          label={`${metadata.tokensUsed} tokens`}
-          size="small"
-          variant="outlined"
-        />
-        <Chip
-          label={`${metadata.processingTime}ms`}
-          size="small"
-          variant="outlined"
-        />
+        <Chip label={`${metadata.tokensUsed} tokens`} size="small" variant="outlined" />
+        <Chip label={`${metadata.processingTime}ms`} size="small" variant="outlined" />
         {metadata.llmProvider && (
           <Chip
             label={`${metadata.llmProvider} (${metadata.llmModel})`}
@@ -188,9 +180,9 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ conversationId }) => {
           {String(children).replace(/\n$/, '')}
         </SyntaxHighlighter>
       ) : (
-        <code className={className} {...props} style={{ 
-          backgroundColor: '#f5f5f5', 
-          padding: '2px 4px', 
+        <code className={className} {...props} style={{
+          backgroundColor: '#f5f5f5',
+          padding: '2px 4px',
           borderRadius: '3px',
           fontFamily: 'monospace'
         }}>
@@ -203,7 +195,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ conversationId }) => {
   return (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
-      <Paper sx={{ p: 2, mb: 2, backgroundColor: '#f8f9fa' }}>
+      {/* <Paper sx={{ p: 2, mb: 2, backgroundColor: '#f8f9fa' }}>
         <Box display="flex" alignItems="center" justifyContent="space-between">
           <Typography variant="h6" display="flex" alignItems="center" gap={1}>
             <BotIcon />
@@ -217,28 +209,48 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ conversationId }) => {
             />
           )}
         </Box>
-      </Paper>
+      </Paper> */}
 
-      {/* Messages */}
-      <Paper sx={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+      {/* Chat Body: Input above, messages below */}
+      <Paper sx={{ flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column-reverse' }}>
+        
+        {/* Input Box moved up */}
+        <Box sx={{ p: 2, borderTop: 1, borderColor: 'divider' }}>
+          <Box display="flex" gap={1}>
+            <TextField
+              fullWidth
+              multiline
+              maxRows={4}
+              value={inputMessage}
+              onChange={(e) => setInputMessage(e.target.value)}
+              onKeyPress={handleKeyPress}
+              placeholder="Ask a question about your documents..."
+              disabled={isLoading}
+              variant="outlined"
+              size="small"
+            />
+            <Button
+              variant="contained"
+              onClick={handleSendMessage}
+              disabled={!inputMessage.trim() || isLoading}
+              sx={{ minWidth: 'auto', px: 2 }}
+            >
+              <SendIcon />
+            </Button>
+          </Box>
+        </Box>
+
+        {/* Error */}
+        {error && (
+          <Alert severity="error" sx={{ mx: 2, mt: 1 }}>
+            {error}
+          </Alert>
+        )}
+
+        {/* Messages */}
         <Box sx={{ flex: 1, overflow: 'auto', p: 2 }}>
           {messages.length === 0 ? (
-            <Box
-              display="flex"
-              flexDirection="column"
-              alignItems="center"
-              justifyContent="center"
-              height="100%"
-              color="text.secondary"
-            >
-              <BotIcon sx={{ fontSize: 64, mb: 2 }} />
-              <Typography variant="h6" gutterBottom>
-                Welcome to the Journey-AI Chatbot!
-              </Typography>
-              <Typography variant="body2" textAlign="center">
-                Ask questions about your stored documents and get intelligent responses.
-              </Typography>
-            </Box>
+            <Box sx={{ height: 10 }} />
           ) : (
             <List>
               {messages.map((message, index) => (
@@ -265,7 +277,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ conversationId }) => {
                         {formatTimestamp(message.timestamp)}
                       </Typography>
                     </Box>
-                    
+
                     <Box sx={{ '& > *:last-child': { mb: 0 } }}>
                       {message.role === 'assistant' ? (
                         <ReactMarkdown components={MarkdownComponents}>
@@ -283,7 +295,7 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ conversationId }) => {
                   </Box>
                 </ListItem>
               ))}
-              
+
               {isLoading && (
                 <ListItem sx={{ justifyContent: 'flex-start' }}>
                   <Box
@@ -301,43 +313,10 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ conversationId }) => {
                   </Box>
                 </ListItem>
               )}
-              
+
               <div ref={messagesEndRef} />
             </List>
           )}
-        </Box>
-
-        {/* Error Display */}
-        {error && (
-          <Alert severity="error" sx={{ mx: 2, mb: 2 }}>
-            {error}
-          </Alert>
-        )}
-
-        {/* Input */}
-        <Box sx={{ p: 2, borderTop: 1, borderColor: 'divider' }}>
-          <Box display="flex" gap={1}>
-            <TextField
-              fullWidth
-              multiline
-              maxRows={4}
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Ask a question about your documents..."
-              disabled={isLoading}
-              variant="outlined"
-              size="small"
-            />
-            <Button
-              variant="contained"
-              onClick={handleSendMessage}
-              disabled={!inputMessage.trim() || isLoading}
-              sx={{ minWidth: 'auto', px: 2 }}
-            >
-              <SendIcon />
-            </Button>
-          </Box>
         </Box>
       </Paper>
     </Box>
