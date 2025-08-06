@@ -8,7 +8,7 @@ import {
   HealthResponse
 } from '../types/api';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://journey-ai-webservice.onrender.com';
+const API_BASE_URL =  'https://journey-ai-webservice.onrender.com'; //process.env.REACT_APP_API_URL ||
 
 // Create axios instance with default config
 const apiClient = axios.create({
