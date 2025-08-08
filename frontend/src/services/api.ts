@@ -5,10 +5,12 @@ import {
   ChatResponse,
   ChatRequest,
   Conversation,
-  HealthResponse
+  HealthResponse,
+  FilterModeResponse,
+  FilterMode
 } from '../types/api';
 
-const API_BASE_URL =  'https://journey-ai-webservice.onrender.com'; 
+const API_BASE_URL =  'http://localhost:3000'//process.env.REACT_APP_API_URL //'https://journey-ai-webservice.onrender.com'; 
 //process.env.REACT_APP_API_URL ||
 
 // Create axios instance with default config
@@ -44,6 +46,15 @@ export class ApiService {
 
   static async processExample(): Promise<EmbeddingResponse> {
     const response: AxiosResponse<EmbeddingResponse> = await apiClient.post('/api/v1/example');
+    return response.data;
+  }
+
+  // Filter mode operations
+  static async setFilterMode(mode: FilterMode, duration?: number): Promise<FilterModeResponse> {
+    const response: AxiosResponse<FilterModeResponse> = await apiClient.post('/api/v1/filter-mode', {
+      mode,
+      duration
+    });
     return response.data;
   }
 

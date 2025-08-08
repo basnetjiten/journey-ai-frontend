@@ -1,3 +1,13 @@
+// Filter Mode Types
+export type FilterMode = 'Quick Response' | 'Think Dipper';
+
+export interface FilterModeResponse {
+  success: boolean;
+  mode: FilterMode;
+  duration?: number;
+  message: string;
+}
+
 // API Response Types
 export interface EmbeddingResponse {
   success: boolean;

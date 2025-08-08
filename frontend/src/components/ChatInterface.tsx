@@ -3,6 +3,11 @@ import {
   Box,
   Paper,
   TextField,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  SelectChangeEvent,
   Button,
   Typography,
   List,
@@ -25,6 +30,7 @@ import ReactMarkdown from 'react-markdown';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
 import { tomorrow } from 'react-syntax-highlighter/dist/esm/styles/prism';
 import ApiService from '../services/api';
+import { FilterMode } from '../types/api';
 import { ChatResponse, ChatRequest } from '../types/api';
 
 interface Message {
@@ -42,6 +48,8 @@ interface ChatInterfaceProps {
 const ChatInterface: React.FC<ChatInterfaceProps> = ({ conversationId }) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
+  const [filterMode, setFilterMode] = useState<FilterMode>('Quick Response');
+  const [thinkDuration, setThinkDuration] = useState<number>(3);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [currentConversationId, setCurrentConversationId] = useState<string | undefined>(conversationId);
@@ -54,6 +62,32 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ conversationId }) => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  const handleFilterModeChange = async (event: SelectChangeEvent<FilterMode>) => {
+    const newMode = event.target.value as FilterMode;
+    setFilterMode(newMode);
+    
+    try {
+      await ApiService.setFilterMode(
+        newMode,
+        newMode === 'Think Dipper' ? thinkDuration : undefined
+      );
+    } catch (error) {
+      console.error('Failed to update filter mode:', error);
+      setError('Failed to update response mode. Please try again.');
+      // We don't revert, so the UI shows the user's selection.
+    }
+  };
+
+  const handleThinkDurationChange = (event: SelectChangeEvent<number>) => {
+    const duration = Number(event.target.value);
+    setThinkDuration(duration);
+    
+    if (filterMode === 'Think Dipper') {
+      // If already in think mode, update the duration
+      ApiService.setFilterMode('Think Dipper', duration).catch(console.error);
+    }
+  };
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim() || isLoading) return;
@@ -216,24 +250,53 @@ const ChatInterface: React.FC<ChatInterfaceProps> = ({ conversationId }) => {
         
         {/* Input Box moved up */}
         <Box sx={{ p: 2, borderTop: 1, borderColor: 'divider' }}>
-          <Box display="flex" gap={1}>
-            <TextField
-              fullWidth
-              multiline
-              maxRows={4}
-              value={inputMessage}
-              onChange={(e) => setInputMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
-              placeholder="Ask a question about your documents..."
-              disabled={isLoading}
-              variant="outlined"
-              size="small"
-            />
+          <Box display="flex" gap={1} alignItems="flex-end" sx={{ width: '100%' }}>
+            <Box display="flex" gap={1} alignItems="center" sx={{ flex: 1 }}>
+              <FormControl variant="outlined" size="small" sx={{ minWidth: 180, flexShrink: 0 }}>
+                <InputLabel>Response Mode</InputLabel>
+                <Select
+                  value={filterMode}
+                  onChange={handleFilterModeChange}
+                  label="Response Mode"
+                >
+                  <MenuItem value="Quick Response">Quick Response</MenuItem>
+                  <MenuItem value="Think Dipper">Think Dipper</MenuItem>
+                </Select>
+              </FormControl>
+              
+              {filterMode === 'Think Dipper' && (
+                <FormControl variant="outlined" size="small" sx={{ minWidth: 120, flexShrink: 0 }}>
+                  <InputLabel>Duration</InputLabel>
+                  <Select
+                    value={thinkDuration}
+                    onChange={handleThinkDurationChange}
+                    label="Duration"
+                  >
+                    <MenuItem value={3}>3 seconds</MenuItem>
+                    <MenuItem value={30}>30 seconds</MenuItem>
+                  </Select>
+                </FormControl>
+              )}
+              
+              <TextField
+                fullWidth
+                multiline
+                maxRows={4}
+                value={inputMessage}
+                onChange={(e) => setInputMessage(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Ask a question about your documents..."
+                disabled={isLoading}
+                variant="outlined"
+                size="small"
+                sx={{ flex: 1 }}
+              />
+            </Box>
             <Button
               variant="contained"
               onClick={handleSendMessage}
               disabled={!inputMessage.trim() || isLoading}
-              sx={{ minWidth: 'auto', px: 2 }}
+              sx={{ height: '40px', minWidth: '40px', p: 0, flexShrink: 0 }}
             >
               <SendIcon />
             </Button>
